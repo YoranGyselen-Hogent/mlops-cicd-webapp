@@ -1,0 +1,46 @@
+services:
+  webapp:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - MYSQL_URL=mysql://api_user:api_password@db:3306/animals
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://localhost:3000/ || exit 1
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 60s
+
+  db:
+    image: mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_USER=api_user
+      - MYSQL_PASSWORD=api_password
+      - MYSQL_DATABASE=animals
+    volumes:
+      - database_volume:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h localhost
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 60s
+  
+  tests:
+    image: webapp:latest
+    environment:
+      - API_URL=http://webapp:3000
+    depends_on:
+      webapp:
+        condition: service_healthy
+    command: yarn test
+
+volumes:
+  database_volume:

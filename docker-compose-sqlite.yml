@@ -1,0 +1,10 @@
+services:
+  webapp:
+    build: .
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - type: bind
+        source: ./database
+        target: /app/database
