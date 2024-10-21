@@ -57,6 +57,7 @@ export default [
                 }
             ],
             "no-inner-declarations": "off"
-        }
+        },
+        "ignores": ['node_modules/**'], // Specify files or directories to ignore
     }
 ]
