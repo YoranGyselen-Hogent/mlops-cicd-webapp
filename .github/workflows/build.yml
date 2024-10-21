@@ -1,11 +1,11 @@
 ---
-name: Lint, test and build Docker Image
+name: Lint, test and build Docker Image from the application
 on:
   push:
     branches:
       - master
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -18,8 +18,32 @@ jobs:
         run: yarn install
       - name: Lint the code
         run: yarn lint
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: yarn install
       - name: Test the code
         run: yarn test
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: yarn install
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
